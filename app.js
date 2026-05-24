@@ -891,20 +891,20 @@
   function getRadarRenderConfig(chartElement) {
     if (chartElement === elements.homeRadarChart) {
       return {
-        size: 520,
-        leafRadius: 108,
-        ringWidth: 16,
-        leafScoreFontSize: 40,
+        size: 620,
+        leafRadius: 160,
+        ringWidth: 20,
+        leafScoreFontSize: 50,
         leafScoreYOffset: 10,
-        leafLabelYOffset: 24,
-        leafLabelFontSize: 15,
-        radarRadius: 122,
-        labelOffset: 38,
-        labelFontSize: 12,
-        labelLineGap: 16,
-        labelLimit: 8,
-        polygonStrokeWidth: 3,
-        pointRadius: 4.5,
+        leafLabelYOffset: 28,
+        leafLabelFontSize: 16,
+        radarRadius: 182,
+        labelOffset: 26,
+        labelFontSize: 13,
+        labelLineGap: 17,
+        labelLimit: 10,
+        polygonStrokeWidth: 3.5,
+        pointRadius: 5.5,
       };
     }
 
