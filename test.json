@@ -1,0 +1,222 @@
+{
+    "profile": {
+        "name": "方景亿",
+        "role": "个人成长玩家",
+        "goal": "把模糊的努力拆成看得见的技能树，并持续升级关键技能。"
+    },
+    "skills": [
+        {
+            "id": "skill-nhytiqim-mpjtx2n5",
+            "name": "锻体",
+            "note": "",
+            "maxValue": 3000,
+            "value": 0,
+            "color": "#9b5c8a",
+            "weight": 2000,
+            "children": [
+                {
+                    "id": "skill-mcegrbn7-mpjtx2n5",
+                    "name": "手臂锻炼",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#d49a39",
+                    "weight": 2000,
+                    "children": []
+                },
+                {
+                    "id": "skill-pvns3y24-mpjtx2n5",
+                    "name": "背部锻炼",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#14756a",
+                    "weight": 2000,
+                    "children": []
+                },
+                {
+                    "id": "skill-biahqzrk-mpjtx2n5",
+                    "name": "腿部锻炼",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#cf5b3f",
+                    "weight": 2000,
+                    "children": []
+                },
+                {
+                    "id": "skill-oz1qy2ek-mpjtx2n5",
+                    "name": "胸部锻炼",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#4f73b7",
+                    "weight": 2000,
+                    "children": []
+                },
+                {
+                    "id": "skill-4ayo61ds-mpjtx2n5",
+                    "name": "腹部锻炼",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#cf5b3f",
+                    "weight": 2000,
+                    "children": []
+                },
+                {
+                    "id": "skill-7nqtxvwv-mpjtxvi3",
+                    "name": "核心锻炼",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#9b5c8a",
+                    "weight": 100,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "skill-3fwswgpy-mpjtrcf1",
+            "name": "英语",
+            "note": "",
+            "maxValue": 1000,
+            "value": 0,
+            "color": "#cf5b3f",
+            "weight": 1000,
+            "children": [
+                {
+                    "id": "skill-y2g70k5n-mpjtrnhs",
+                    "name": "英语听力",
+                    "note": "",
+                    "maxValue": 360,
+                    "value": 0,
+                    "color": "#6f8f2f",
+                    "weight": 360,
+                    "children": []
+                },
+                {
+                    "id": "skill-jh6ezrr5-mpjtruxv",
+                    "name": "英语口语",
+                    "note": "",
+                    "maxValue": 400,
+                    "value": 0,
+                    "color": "#d49a39",
+                    "weight": 400,
+                    "children": []
+                },
+                {
+                    "id": "skill-fz7mkn9p-mpjtrzxr",
+                    "name": "英语写作",
+                    "note": "",
+                    "maxValue": 120,
+                    "value": 0,
+                    "color": "#4f73b7",
+                    "weight": 120,
+                    "children": []
+                },
+                {
+                    "id": "skill-9y0xnu9c-mpjttvp9",
+                    "name": "英语阅读",
+                    "note": "",
+                    "maxValue": 120,
+                    "value": 0,
+                    "color": "#d49a39",
+                    "weight": 120,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "skill-jni6ybo3-mpjsqim3",
+            "name": "ai agent开发",
+            "note": "",
+            "maxValue": 4000,
+            "value": 0,
+            "color": "#d49a39",
+            "weight": 4000,
+            "children": [
+                {
+                    "id": "skill-gsr2w6vr-mpjsr9jl",
+                    "name": "LLM 调用与 Prompt 工程",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#d49a39",
+                    "weight": 1000,
+                    "children": []
+                },
+                {
+                    "id": "skill-4rotxii4-mpjsrick",
+                    "name": "工具调用与函数定义",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#14756a",
+                    "weight": 1000,
+                    "children": []
+                },
+                {
+                    "id": "skill-1r2vgwo1-mpjsrp3n",
+                    "name": "RAG 与知识检索",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#4f73b7",
+                    "weight": 1000,
+                    "children": []
+                },
+                {
+                    "id": "skill-duiilk04-mpjsrwrv",
+                    "name": "Agent 架构与循环",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#d49a39",
+                    "weight": 1000,
+                    "children": []
+                },
+                {
+                    "id": "skill-sdc0pav0-mpjss48w",
+                    "name": "记忆与持久化",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#d49a39",
+                    "weight": 1000,
+                    "children": []
+                },
+                {
+                    "id": "skill-wdjqtd6i-mpjssaq9",
+                    "name": "评估与可观测性",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#6f8f2f",
+                    "weight": 1000,
+                    "children": []
+                },
+                {
+                    "id": "skill-6qj7ch1b-mpjssimo",
+                    "name": "部署与工程化",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 3,
+                    "color": "#9b5c8a",
+                    "weight": 1000,
+                    "children": []
+                },
+                {
+                    "id": "skill-ysc1286z-mpjssra9",
+                    "name": "框架与工具链",
+                    "note": "",
+                    "maxValue": 500,
+                    "value": 0,
+                    "color": "#d49a39",
+                    "weight": 1000,
+                    "children": []
+                }
+            ]
+        }
+    ]
+}

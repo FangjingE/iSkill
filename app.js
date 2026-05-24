@@ -16,7 +16,7 @@
     skillCount: document.getElementById("skill-count"),
     leafCount: document.getElementById("leaf-count"),
     avgScore: document.getElementById("avg-score"),
-    syncStatus: document.getElementById("sync-status"),
+    homeRadarChart: document.getElementById("home-radar-chart"),
     homeView: document.getElementById("home-view"),
     detailView: document.getElementById("detail-view"),
     detailContent: document.getElementById("detail-content"),
@@ -423,6 +423,7 @@
   function renderAll() {
     renderProfile();
     renderMetrics();
+    renderHomeRadar();
     renderViewState();
     renderHome();
     renderDetail();
@@ -463,10 +464,6 @@
   }
 
   function renderHome() {
-    if (elements.syncStatus) {
-      elements.syncStatus.hidden = false;
-    }
-
     if (!state.skills.length) {
       elements.skillsGrid.innerHTML = "";
       elements.skillEmptyState.hidden = false;
@@ -528,6 +525,39 @@
         `;
       })
       .join("");
+  }
+
+  function renderHomeRadar() {
+    if (!elements.homeRadarChart) {
+      return;
+    }
+
+    if (!state.skills.length) {
+      clearChart(elements.homeRadarChart);
+      return;
+    }
+
+    const topLevelSkill = {
+      id: "top-level-overview",
+      name: "顶层技能总览",
+      note: "",
+      maxValue: 100,
+      value: 0,
+      color: "#14756a",
+      weight: 1,
+      children: state.skills.map((skill) => ({
+        id: skill.id,
+        name: skill.name,
+        note: skill.note || "",
+        maxValue: skill.maxValue,
+        value: skill.value,
+        color: skill.color,
+        weight: skill.weight,
+        children: skill.children,
+      })),
+    };
+
+    renderRadar(topLevelSkill, elements.homeRadarChart);
   }
 
   function renderDetail() {
@@ -852,7 +882,32 @@
     });
   }
 
+  function clearChart(chartElement) {
+    while (chartElement.firstChild) {
+      chartElement.removeChild(chartElement.firstChild);
+    }
+  }
+
   function getRadarRenderConfig(chartElement) {
+    if (chartElement === elements.homeRadarChart) {
+      return {
+        size: 520,
+        leafRadius: 108,
+        ringWidth: 16,
+        leafScoreFontSize: 40,
+        leafScoreYOffset: 10,
+        leafLabelYOffset: 24,
+        leafLabelFontSize: 15,
+        radarRadius: 122,
+        labelOffset: 38,
+        labelFontSize: 12,
+        labelLineGap: 16,
+        labelLimit: 8,
+        polygonStrokeWidth: 3,
+        pointRadius: 4.5,
+      };
+    }
+
     if (chartElement === elements.radarChartExpanded) {
       return {
         size: 640,
@@ -1190,10 +1245,7 @@
   }
 
   function setSyncStatus(message) {
-    if (!elements.syncStatus) {
-      return;
-    }
-    elements.syncStatus.textContent = message;
+    return message;
   }
 
   function createSeedState() {
