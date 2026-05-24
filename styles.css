@@ -232,6 +232,13 @@ textarea {
   gap: 1rem;
 }
 
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 .section-head {
   margin-bottom: 1.2rem;
 }
@@ -249,6 +256,10 @@ textarea {
 
 .view.panel {
   padding: 1.5rem;
+}
+
+.home-import-note {
+  margin: -0.2rem 0 1rem;
 }
 
 .composer {
@@ -749,6 +760,10 @@ input:disabled {
   .branch-controls {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .toolbar-actions {
+    justify-content: stretch;
   }
 
   .skill-title-input {

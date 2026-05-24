@@ -67,10 +67,23 @@
               <p class="eyebrow">Skills Lobby</p>
               <h2>首页技能面板</h2>
             </div>
-            <button id="restore-demo" class="button button--ghost" type="button">
-              恢复示例数据
-            </button>
+            <div class="toolbar-actions">
+              <button id="export-json" class="button button--secondary" type="button">
+                导出 JSON
+              </button>
+              <button id="import-json" class="button button--ghost" type="button">
+                导入 JSON
+              </button>
+              <button id="restore-demo" class="button button--ghost" type="button">
+                恢复示例数据
+              </button>
+            </div>
           </div>
+
+          <input id="import-json-input" type="file" accept="application/json,.json" hidden />
+          <p class="microcopy home-import-note">
+            导出会下载当前技能数据快照；导入会覆盖当前本地记录，适合做备份和迁移。
+          </p>
 
           <form id="add-skill-form" class="composer">
             <label class="field">
