@@ -22,9 +22,6 @@
     skillsGrid: document.getElementById("skills-grid"),
     skillEmptyState: document.getElementById("skill-empty-state"),
     addSkillForm: document.getElementById("add-skill-form"),
-    exportJson: document.getElementById("export-json"),
-    importJson: document.getElementById("import-json"),
-    importJsonInput: document.getElementById("import-json-input"),
     restoreDemo: document.getElementById("restore-demo"),
     backHome: document.getElementById("back-home"),
     detailBreadcrumb: document.getElementById("detail-breadcrumb"),
@@ -116,27 +113,6 @@
       elements.addSkillForm.elements.value.value = "0";
       selectSkill(skill.id);
       renderAll();
-    });
-
-    elements.exportJson.addEventListener("click", exportStateAsJson);
-
-    elements.importJson.addEventListener("click", () => {
-      elements.importJsonInput.click();
-    });
-
-    elements.importJsonInput.addEventListener("change", async () => {
-      const [file] = Array.from(elements.importJsonInput.files || []);
-      elements.importJsonInput.value = "";
-      if (!file) {
-        return;
-      }
-
-      const shouldImport = window.confirm("导入 JSON 会覆盖当前本地记录，是否继续？");
-      if (!shouldImport) {
-        return;
-      }
-
-      await importStateFromFile(file);
     });
 
     elements.restoreDemo.addEventListener("click", () => {
@@ -1119,67 +1095,6 @@
 
   function saveState() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-
-  function exportStateAsJson() {
-    const payload = {
-      version: 2,
-      exportedAt: new Date().toISOString(),
-      state,
-    };
-    const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
-      type: "application/json;charset=utf-8",
-    });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = buildExportFilename();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  }
-
-  async function importStateFromFile(file) {
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      const nextState = extractImportedState(parsed);
-      state = normalizeState(nextState);
-      selectedSkillId = null;
-      clearHash();
-      saveState();
-      renderAll();
-      window.alert("导入成功，当前技能数据已更新。");
-    } catch (error) {
-      window.alert("导入失败：文件内容不是有效的技能 JSON。");
-    }
-  }
-
-  function extractImportedState(parsed) {
-    if (!parsed || typeof parsed !== "object") {
-      throw new Error("Invalid JSON payload");
-    }
-
-    const candidate = parsed.state && typeof parsed.state === "object" ? parsed.state : parsed;
-    if (!candidate || typeof candidate !== "object") {
-      throw new Error("Invalid state shape");
-    }
-
-    return candidate;
-  }
-
-  function buildExportFilename() {
-    const now = new Date();
-    const parts = [
-      now.getFullYear(),
-      String(now.getMonth() + 1).padStart(2, "0"),
-      String(now.getDate()).padStart(2, "0"),
-      String(now.getHours()).padStart(2, "0"),
-      String(now.getMinutes()).padStart(2, "0"),
-      String(now.getSeconds()).padStart(2, "0"),
-    ];
-    return `iskills-backup-${parts.join("")}.json`;
   }
 
   function createSeedState() {

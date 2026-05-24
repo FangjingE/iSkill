@@ -258,10 +258,6 @@ textarea {
   padding: 1.5rem;
 }
 
-.home-import-note {
-  margin: -0.2rem 0 1rem;
-}
-
 .composer {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
