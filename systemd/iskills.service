@@ -1,5 +1,5 @@
 [Unit]
-Description=iSkills static site
+Description=iSkills local SQLite server
 After=network.target
 
 [Service]

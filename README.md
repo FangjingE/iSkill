@@ -1,6 +1,6 @@
 # 技能成长台
 
-一个零依赖的个人技能管理前端，直接用浏览器打开 `index.html` 就能使用。
+一个基于本地 Python + SQLite 的个人技能管理应用，前端页面和数据接口由同一个本地服务提供。
 
 ## 功能
 
@@ -14,61 +14,30 @@
 - 每个技能支持添加、删除子技能
 - 每个子技能支持修改权重、上限和名称
 - 每个技能都能自定义数值上限
-- 所有数据自动保存在浏览器本地 `localStorage`
-- 兼容旧版“技能 + 分支”数据，会自动迁移为技能树结构
+- 所有数据自动保存在本地 SQLite 数据库
+- 兼容旧版浏览器 `localStorage` 数据，首次启动新服务时会自动迁移
 
 ## 使用方式
 
-1. 直接双击打开 [index.html](./index.html)
-2. 或在当前目录运行本地静态服务，例如：
-
-```bash
-python -m http.server 8080
-```
-
-然后访问 `http://localhost:8080`
-
-也可以直接使用仓库内脚本启动：
+在当前目录运行本地服务：
 
 ```bash
 bash scripts/serve.sh
 ```
 
+然后访问 `http://127.0.0.1:8080`
+
+默认会在 `data/iskills.db` 保存数据。
+
 ## 开机自启动
 
-这个项目是纯静态前端，所以有两种常见做法：
+现在推荐固定通过本地服务启动，因为页面和 SQLite API 绑定在同一个地址下。
 
-### 方案一：开机后直接打开页面（最简单）
-
-适合只想“开机自动看到页面”，不要求固定 `http://localhost` 地址。
-
-如果你在 Windows 上使用 WSL2，可以把一个浏览器快捷方式放进“启动”文件夹，让它登录后自动打开这个页面。
-
-1. 先确认项目可正常打开：
-   - 直接打开 `index.html`
-   - 或访问静态服务地址
-2. 按 `Win + R`，输入：
-
-```text
-shell:startup
-```
-
-3. 在打开的启动文件夹里，新建一个快捷方式。
-4. 如果你想直接打开本地文件，可把目标写成浏览器加页面路径，例如：
-
-```text
-msedge.exe "\\wsl$\Ubuntu\home\fanglaozu\projects\iSkills\index.html"
-```
-
-如果你的 WSL 发行版名称不是 `Ubuntu`，把上面的发行版名称改成你自己的。
-
-### 方案二：WSL 内自动启动本地服务（更稳）
-
-适合希望固定用 `http://127.0.0.1:8080` 访问。
+### WSL 内自动启动本地服务
 
 仓库已经提供：
 
-- `scripts/serve.sh`：启动静态服务
+- `scripts/serve.sh`：启动 Python + SQLite 本地服务
 - `systemd/iskills.service`：系统级 `systemd` 服务模板
 
 你的 `/etc/wsl.conf` 需要启用 `systemd`：
@@ -91,6 +60,12 @@ sudo systemctl status iskills.service
 
 ```text
 http://127.0.0.1:8080
+```
+
+数据库默认位于：
+
+```text
+/home/fanglaozu/projects/iSkills/data/iskills.db
 ```
 
 ### 让 Windows 开机时顺带拉起 WSL
@@ -116,6 +91,8 @@ journalctl -u iskills.service -n 50
 
 - `index.html`：页面结构
 - `styles.css`：界面样式
-- `app.js`：递归技能树、权重计算、雷达图渲染与本地存储
-- `scripts/serve.sh`：本地静态服务启动脚本
+- `app.js`：递归技能树、权重计算、雷达图渲染与 API 持久化
+- `server.py`：本地 Python 服务与 SQLite API
+- `data/iskills.db`：本地 SQLite 数据库文件
+- `scripts/serve.sh`：本地服务启动脚本
 - `systemd/iskills.service`：WSL `systemd` 系统服务模板

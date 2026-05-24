@@ -1,6 +1,7 @@
 "use strict";
 
 (function () {
+  const API_STATE_ENDPOINT = "/api/state";
   const STORAGE_KEY = "iskills-skill-atlas-v2";
   const LEGACY_STORAGE_KEYS = ["iskills-skill-atlas-v1"];
   const PALETTE = ["#cf5b3f", "#14756a", "#d49a39", "#4f73b7", "#9b5c8a", "#6f8f2f"];
@@ -15,6 +16,7 @@
     skillCount: document.getElementById("skill-count"),
     leafCount: document.getElementById("leaf-count"),
     avgScore: document.getElementById("avg-score"),
+    syncStatus: document.getElementById("sync-status"),
     homeView: document.getElementById("home-view"),
     detailView: document.getElementById("detail-view"),
     detailContent: document.getElementById("detail-content"),
@@ -31,7 +33,6 @@
     skillAverage: document.getElementById("skill-average"),
     skillMaxDisplay: document.getElementById("skill-max-display"),
     skillChildDisplay: document.getElementById("skill-child-display"),
-    skillWeightDisplay: document.getElementById("skill-weight-display"),
     radarChart: document.getElementById("radar-chart"),
     radarChartExpanded: document.getElementById("radar-chart-expanded"),
     expandRadar: document.getElementById("expand-radar"),
@@ -49,12 +50,22 @@
     childEmptyState: document.getElementById("child-empty-state"),
   };
 
-  let state = loadState();
+  let state = createSeedState();
   let selectedSkillId = null;
+  let isHydrating = true;
+  let pendingSaveController = null;
 
   bindEvents();
   syncSelectionFromHash();
   renderAll();
+  initializeApp();
+
+  async function initializeApp() {
+    setSyncStatus("正在连接本地数据库...");
+    state = await loadState();
+    isHydrating = false;
+    renderAll();
+  }
 
   function bindEvents() {
     elements.profileName.addEventListener("input", () => {
@@ -81,10 +92,6 @@
         elements.addChildForm.elements.childMaxValue,
         elements.addChildForm.elements.childValue,
         0,
-      );
-      syncWeightDefaultFromMax(
-        elements.addChildForm.elements.childMaxValue,
-        elements.addChildForm.elements.childWeight,
       );
     });
 
@@ -292,7 +299,6 @@
       const name = cleanText(formData.get("childName"));
       const maxValue = clampNumber(formData.get("childMaxValue"), 1, 9999, 100);
       const value = clampNumber(formData.get("childValue"), 0, maxValue, 0);
-      const weight = clampNumber(formData.get("childWeight"), 0, MAX_WEIGHT, maxValue);
 
       if (!name) {
         return;
@@ -301,12 +307,11 @@
       if (!skill.children.length) {
         skill.value = 0;
       }
-      skill.children.push(createSkill({ name, maxValue, value, weight }));
+      skill.children.push(createSkill({ name, maxValue, value }));
       saveState();
       elements.addChildForm.reset();
       elements.addChildForm.elements.childMaxValue.value = "100";
       elements.addChildForm.elements.childValue.value = "0";
-      elements.addChildForm.elements.childWeight.value = "100";
       renderAll();
     });
 
@@ -458,6 +463,10 @@
   }
 
   function renderHome() {
+    if (elements.syncStatus) {
+      elements.syncStatus.hidden = false;
+    }
+
     if (!state.skills.length) {
       elements.skillsGrid.innerHTML = "";
       elements.skillEmptyState.hidden = false;
@@ -530,7 +539,6 @@
     }
 
     const score = calculateScore(skill);
-    const totalWeight = getTotalWeight(skill.children);
     const path = findPathToSkill(selectedSkillId) || [];
     const parentId = selectedNode && selectedNode.parent ? selectedNode.parent.id : "";
 
@@ -542,7 +550,6 @@
     elements.skillAverage.textContent = formatNumber(score);
     elements.skillMaxDisplay.textContent = String(skill.maxValue);
     elements.skillChildDisplay.textContent = String(skill.children.length);
-    elements.skillWeightDisplay.textContent = formatNumber(totalWeight);
 
     const isLeaf = !skill.children.length;
     elements.leafScoreInput.value = formatNumber(isLeaf ? skill.value : score);
@@ -1071,7 +1078,51 @@
     history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
   }
 
-  function loadState() {
+  async function loadState() {
+    try {
+      const response = await fetch(API_STATE_ENDPOINT, {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to load state: ${response.status}`);
+      }
+
+      const payload = await response.json();
+      if (payload && payload.state) {
+        setSyncStatus("已连接本地 SQLite");
+        return normalizeState(payload.state);
+      }
+
+      const localState = loadLocalState();
+      if (localState) {
+        await persistState(localState);
+        clearLocalState();
+        setSyncStatus("已迁移旧数据到本地 SQLite");
+        return normalizeState(localState);
+      }
+
+      const seedState = createSeedState();
+      await persistState(seedState);
+      setSyncStatus("已连接本地 SQLite");
+      return seedState;
+    } catch (error) {
+      setSyncStatus("数据库暂时不可用，当前使用临时内存数据");
+      return loadLocalState() || createSeedState();
+    }
+  }
+
+  function saveState() {
+    if (isHydrating) {
+      return;
+    }
+
+    persistState(state).catch(() => {
+      setSyncStatus("保存失败，请确认本地 Python 服务正在运行");
+    });
+  }
+
+  function loadLocalState() {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
@@ -1086,15 +1137,63 @@
           return normalizeState(migrated);
         }
       }
-
-      return createSeedState();
     } catch (error) {
-      return createSeedState();
+      return null;
+    }
+
+    return null;
+  }
+
+  function clearLocalState() {
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+      LEGACY_STORAGE_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+    } catch (error) {
+      return;
     }
   }
 
-  function saveState() {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  async function persistState(nextState) {
+    if (pendingSaveController) {
+      pendingSaveController.abort();
+    }
+
+    const controller = new AbortController();
+    pendingSaveController = controller;
+    setSyncStatus("正在保存到本地 SQLite...");
+
+    try {
+      const response = await fetch(API_STATE_ENDPOINT, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ state: nextState }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save state: ${response.status}`);
+      }
+
+      setSyncStatus("数据已保存到本地 SQLite");
+    } catch (error) {
+      if (error && error.name === "AbortError") {
+        return;
+      }
+      throw error;
+    } finally {
+      if (pendingSaveController === controller) {
+        pendingSaveController = null;
+      }
+    }
+  }
+
+  function setSyncStatus(message) {
+    if (!elements.syncStatus) {
+      return;
+    }
+    elements.syncStatus.textContent = message;
   }
 
   function createSeedState() {
@@ -1405,11 +1504,6 @@
     const maxValue = clampNumber(maxInput.value, 1, 9999, 100);
     valueInput.max = String(maxValue);
     valueInput.value = String(clampNumber(valueInput.value, min, maxValue, min));
-  }
-
-  function syncWeightDefaultFromMax(maxInput, weightInput) {
-    const maxValue = clampNumber(maxInput.value, 1, 9999, 100);
-    weightInput.value = String(maxValue);
   }
 
   function cleanText(value, maxLength) {
