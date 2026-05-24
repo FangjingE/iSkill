@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>技能成长台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient--one"></div>
+    <div class="ambient ambient--two"></div>
+
+    <div class="app-shell">
+      <header id="home-hero" class="hero panel">
+        <div class="hero__content reveal">
+          <p class="eyebrow">Personal Skill Atlas</p>
+          <h1>技能成长台</h1>
+          <p class="hero__summary">
+            把抽象的“大技能”拆成能经营、能升级、能看见结构变化的能力树。
+          </p>
+
+          <div class="hero__metrics">
+            <article class="metric-card">
+              <strong id="skill-count">0</strong>
+              <span>技能总数</span>
+            </article>
+            <article class="metric-card">
+              <strong id="leaf-count">0</strong>
+              <span>叶子技能</span>
+            </article>
+            <article class="metric-card">
+              <strong id="avg-score">0%</strong>
+              <span>平均进度</span>
+            </article>
+          </div>
+        </div>
+
+        <section class="profile-card reveal">
+          <div class="section-head section-head--compact">
+            <div>
+              <p class="eyebrow">Character Sheet</p>
+              <h2>人物档案</h2>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>人物名称</span>
+            <input id="profile-name" type="text" maxlength="30" />
+          </label>
+
+          <label class="field">
+            <span>角色定位</span>
+            <input id="profile-role" type="text" maxlength="40" />
+          </label>
+
+          <label class="field">
+            <span>当前目标</span>
+            <textarea id="profile-goal" rows="4" maxlength="200"></textarea>
+          </label>
+        </section>
+      </header>
+
+      <main class="main-content">
+        <section id="home-view" class="panel view">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Skills Lobby</p>
+              <h2>首页技能面板</h2>
+            </div>
+            <button id="restore-demo" class="button button--ghost" type="button">
+              恢复示例数据
+            </button>
+          </div>
+
+          <form id="add-skill-form" class="composer">
+            <label class="field">
+              <span>技能名称</span>
+              <input
+                name="name"
+                type="text"
+                placeholder="例如：计算机能力"
+                maxlength="30"
+                required
+              />
+            </label>
+
+            <label class="field">
+              <span>技能上限</span>
+              <input name="maxValue" type="number" min="1" step="1" value="100" required />
+            </label>
+
+            <label class="field">
+              <span>初始得分</span>
+              <input name="value" type="number" min="0" step="1" value="0" required />
+            </label>
+
+            <label class="field">
+              <span>初始子技能（可选）</span>
+              <input
+                name="children"
+                type="text"
+                placeholder="用逗号、顿号或空格分隔，例如：工程化、理论知识"
+              />
+            </label>
+
+            <button class="button button--primary" type="submit">添加技能</button>
+          </form>
+
+          <div id="skills-grid" class="skills-grid"></div>
+          <p id="skill-empty-state" class="empty-state" hidden>还没有技能，先创建第一项能力吧。</p>
+        </section>
+
+        <section id="detail-view" class="view" hidden>
+          <div class="detail-toolbar">
+            <button id="back-home" class="button button--ghost" type="button">返回首页</button>
+            <div id="detail-breadcrumb" class="detail-breadcrumb"></div>
+          </div>
+
+          <article id="detail-missing-state" class="panel detail-missing" hidden>
+            <p class="eyebrow">Skill Detail</p>
+            <h2>没有找到这个技能</h2>
+            <p class="microcopy">
+              当前链接对应的技能可能已经被删除，或者本地数据已经变化。你可以返回首页后重新进入一个技能。
+            </p>
+          </article>
+
+          <div id="detail-content" hidden>
+            <div class="detail-layout">
+              <article class="panel detail-overview">
+                <div class="detail-header">
+                  <div>
+                    <p class="eyebrow">Skill Detail</p>
+                    <input
+                      id="skill-name-input"
+                      class="skill-title-input"
+                      type="text"
+                      maxlength="30"
+                    />
+                  </div>
+                  <button id="delete-current-skill" class="button button--danger" type="button">
+                    删除技能
+                  </button>
+                </div>
+
+                <div class="detail-stats">
+                  <article class="stat-card">
+                    <strong id="skill-average">0</strong>
+                    <span>综合得分</span>
+                  </article>
+                  <article class="stat-card">
+                    <strong id="skill-max-display">0</strong>
+                    <span>技能上限</span>
+                  </article>
+                  <article class="stat-card">
+                    <strong id="skill-child-display">0</strong>
+                    <span>子技能数量</span>
+                  </article>
+                  <article class="stat-card">
+                    <strong id="skill-weight-display">0</strong>
+                    <span>权重合计</span>
+                  </article>
+                </div>
+
+                <div class="radar-frame">
+                  <div class="radar-frame__actions">
+                    <button id="expand-radar" class="button button--ghost radar-expand" type="button">
+                      放大查看
+                    </button>
+                  </div>
+                  <svg id="radar-chart" viewBox="0 0 420 420" aria-label="技能雷达图"></svg>
+                </div>
+              </article>
+
+              <aside class="panel detail-config">
+                <div class="section-head section-head--compact">
+                  <div>
+                    <p class="eyebrow">Config</p>
+                    <h3>技能规则</h3>
+                  </div>
+                </div>
+
+                <label class="field">
+                  <span>父技能</span>
+                  <select id="skill-parent-select">
+                    <option value="">设为顶级技能</option>
+                  </select>
+                </label>
+
+                <p class="microcopy microcopy--compact">
+                  可以把当前技能挂到别的技能下面，或恢复成顶级技能；不能选择自己或自己的子技能。
+                </p>
+
+                <label class="field">
+                  <span>技能上限</span>
+                  <input id="skill-max-input" type="number" min="1" step="1" />
+                </label>
+
+                <div class="leaf-panel">
+                  <div class="section-head section-head--compact">
+                    <div>
+                      <p class="eyebrow">Score</p>
+                      <h3>当前技能得分</h3>
+                    </div>
+                  </div>
+
+                  <div class="leaf-controls">
+                    <div class="stepper stepper--wide">
+                      <button id="leaf-score-decrement" type="button">-</button>
+                      <input id="leaf-score-input" type="number" min="0" step="1" />
+                      <button id="leaf-score-increment" type="button">+</button>
+                    </div>
+                  </div>
+
+                  <p id="leaf-score-note" class="microcopy"></p>
+                </div>
+
+                <label class="field">
+                  <span>技能备注</span>
+                  <textarea
+                    id="skill-note-input"
+                    rows="5"
+                    maxlength="240"
+                    placeholder="例如：这个月优先提升工程化与英语口语。"
+                  ></textarea>
+                </label>
+
+                <div class="config-actions">
+                  <button id="equalize-weights" class="button button--secondary" type="button">
+                    按上限重置权重
+                  </button>
+                </div>
+
+                <p class="microcopy">
+                  权重按相对值计算，默认会参考子技能上限自动分配；你也可以在子技能管理里直接改权重占比。
+                  父技能得分会按子技能进度加权汇总。
+                </p>
+              </aside>
+            </div>
+
+            <section class="panel branches-panel">
+              <div class="section-head section-head--compact">
+                <div>
+                  <p class="eyebrow">Children</p>
+                  <h3>子技能管理</h3>
+                </div>
+              </div>
+
+              <form id="add-child-form" class="composer composer--compact">
+                <label class="field">
+                  <span>子技能名称</span>
+                  <input
+                    name="childName"
+                    type="text"
+                    placeholder="例如：工程化能力"
+                    maxlength="30"
+                    required
+                  />
+                </label>
+
+                <label class="field">
+                  <span>技能上限</span>
+                  <input name="childMaxValue" type="number" min="1" step="1" value="100" required />
+                </label>
+
+                <label class="field">
+                  <span>初始得分</span>
+                  <input name="childValue" type="number" min="0" step="1" value="0" required />
+                </label>
+
+                <label class="field">
+                  <span>默认权重基数</span>
+                  <input name="childWeight" type="number" min="0" step="0.1" value="100" required />
+                </label>
+
+                <button class="button button--primary" type="submit">添加子技能</button>
+              </form>
+
+              <div id="children-list" class="branches-list"></div>
+              <p id="child-empty-state" class="empty-state" hidden>
+                这个技能还没有子技能；你可以先把它当作叶子技能直接计分，或者继续往下拆。
+              </p>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="radar-modal" class="radar-modal" hidden>
+      <div class="radar-modal__backdrop" data-close-radar="true"></div>
+      <div
+        class="panel radar-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="radar-modal-title"
+      >
+        <div class="radar-modal__header">
+          <div>
+            <p class="eyebrow">Radar Focus</p>
+            <h2 id="radar-modal-title">技能雷达图</h2>
+          </div>
+          <button id="close-radar" class="button button--ghost" type="button">关闭</button>
+        </div>
+
+        <div class="radar-modal__body">
+          <svg id="radar-chart-expanded" viewBox="0 0 420 420" aria-label="放大技能雷达图"></svg>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
